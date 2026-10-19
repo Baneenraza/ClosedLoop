@@ -1,0 +1,582 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Loop — Scam &amp; Deepfake Shield</title>
+<meta name="description" content="Loop checks the link before it opens and the call before you trust it. Built by Team ClosedLoop for the NYLP AI Hackathon 2026." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e1a;
+    --bg-soft: #0d1220;
+    --card: #161d2e;
+    --card-border: rgba(255,255,255,0.08);
+    --text: #f1f5f9;
+    --muted: #8b96ab;
+    --accent: #38bdf8;
+    --accent-2: #7dd3fc;
+    --red: #ef4444;
+    --red-dark: #7f1d1d;
+    --yellow: #f59e0b;
+    --green: #22c55e;
+    --radius: 16px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.35);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: radial-gradient(circle at 50% 0%, var(--bg-soft), var(--bg) 60%);
+    color: var(--text);
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    padding-bottom: 32px;
+  }
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--card-border);
+  }
+  header h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  header h1 span {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  #lang-toggle {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: border-color 0.15s ease, transform 0.1s ease;
+  }
+  #lang-toggle:active { transform: scale(0.96); }
+  .screen {
+    display: flex; flex-direction: column; gap: 14px; flex: 1;
+    animation: fadeIn 0.25s ease;
+  }
+  .hidden { display: none !important; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  textarea {
+    width: 100%;
+    min-height: 110px;
+    border-radius: var(--radius);
+    border: 1px solid var(--card-border);
+    background: var(--card);
+    color: var(--text);
+    padding: 14px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: vertical;
+    transition: border-color 0.15s ease;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+  button {
+    font-family: inherit;
+    font-size: 1.02rem;
+    padding: 16px;
+    border-radius: var(--radius);
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.08s ease, filter 0.15s ease, box-shadow 0.15s ease;
+  }
+  button:active { transform: scale(0.98); }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent-2), var(--accent));
+    color: #04202e;
+    box-shadow: 0 4px 16px rgba(56,189,248,0.25);
+  }
+  .btn-primary:hover { filter: brightness(1.05); }
+  .btn-secondary {
+    background: var(--card); color: var(--text); border: 1px solid var(--card-border);
+  }
+  .btn-secondary:hover { border-color: var(--accent); }
+  .btn-danger {
+    background: linear-gradient(135deg, #f87171, var(--red)); color: white;
+    box-shadow: 0 4px 16px rgba(239,68,68,0.25);
+  }
+  .divider {
+    text-align: center; color: var(--muted); font-size: 0.8rem; margin: 6px 0;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .divider::before, .divider::after {
+    content: ''; flex: 1; height: 1px; background: var(--card-border);
+  }
+  .demo-row { display: flex; gap: 10px; }
+  .demo-row button { flex: 1; }
+
+  #screen-result { align-items: center; text-align: center; justify-content: center; }
+  #intercept-banner {
+    background: linear-gradient(135deg, #f87171, var(--red)); color: white; font-weight: 700;
+    padding: 12px 18px; border-radius: 12px; margin-bottom: 4px;
+    box-shadow: 0 4px 16px rgba(239,68,68,0.3);
+  }
+  .verdict-circle {
+    width: 148px; height: 148px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 3.4rem; margin: 12px 0;
+    animation: popIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .verdict-circle.red { background: radial-gradient(circle at 35% 30%, #f87171, var(--red)); box-shadow: 0 0 40px rgba(239,68,68,0.35); }
+  .verdict-circle.yellow { background: radial-gradient(circle at 35% 30%, #fbbf24, var(--yellow)); box-shadow: 0 0 40px rgba(245,158,11,0.35); }
+  .verdict-circle.green { background: radial-gradient(circle at 35% 30%, #4ade80, var(--green)); box-shadow: 0 0 40px rgba(34,197,94,0.35); }
+  #result-reason { font-size: 1.3rem; font-weight: 700; line-height: 1.4; letter-spacing: -0.01em; }
+  #result-action { color: var(--muted); font-size: 1rem; line-height: 1.5; }
+
+  #screen-intercept, #screen-verify {
+    position: fixed; inset: 0; z-index: 10;
+    background: radial-gradient(circle at 50% 20%, #f87171, var(--red) 65%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 24px; gap: 16px;
+  }
+  #screen-verify { background: radial-gradient(circle at 50% 20%, #c2410c, var(--red-dark) 70%); }
+  .big-icon { font-size: 4rem; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3)); }
+  .intercept-title { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.01em; }
+  .intercept-sub { font-size: 1.1rem; opacity: 0.9; }
+  #intercept-actions, #verify-actions { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; }
+  #countdown { font-size: 1rem; opacity: 0.85; font-variant-numeric: tabular-nums; }
+  input[type=text] {
+    width: 100%; max-width: 320px; padding: 15px; border-radius: 12px; border: none;
+    font-family: inherit; font-size: 1rem; box-shadow: var(--shadow);
+  }
+  input[type=text]:focus { outline: 3px solid rgba(255,255,255,0.4); }
+  .link-btn {
+    background: none; border: none; color: var(--muted); text-decoration: underline;
+    font-size: 0.95rem; padding: 6px; cursor: pointer; font-family: inherit;
+  }
+  #report-thanks { color: var(--green); text-align: center; font-weight: 600; }
+  #toast {
+    position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+    background: var(--card); color: var(--text); padding: 14px 22px; border-radius: 14px;
+    border: 1px solid var(--card-border);
+    font-size: 0.95rem; font-weight: 500; z-index: 20; box-shadow: var(--shadow);
+  }
+  .lang-ur { font-family: 'Segoe UI', 'Noto Nastaliq Urdu', sans-serif; direction: rtl; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>🛡️ <span>Loop</span></h1>
+    <button id="lang-toggle">اردو</button>
+  </header>
+
+  <section id="screen-home" class="screen">
+    <p id="home-tagline" style="color: var(--muted); margin: 0;">Your digital watchman. Paste anything suspicious below.</p>
+    <textarea id="input-text" placeholder="Paste a suspicious message or link here..."></textarea>
+    <button class="btn-primary" id="btn-check">Check it</button>
+    <button class="btn-secondary" id="btn-screenshot">I have a screenshot instead</button>
+    <button class="btn-secondary" id="btn-image">🖼️ Check a photo/image</button>
+    <input type="file" id="input-image" accept="image/*" class="hidden" />
+    <button class="btn-secondary" id="btn-video">🎥 Check a video</button>
+    <input type="file" id="input-video" accept="video/*" class="hidden" />
+    <div class="divider">— or try a live demo —</div>
+    <div class="demo-row">
+      <button class="btn-secondary" id="btn-demo-link">📱 Tapped a scam link</button>
+      <button class="btn-secondary" id="btn-demo-call">📞 Emergency call</button>
+    </div>
+    <footer style="color: var(--muted); font-size: 0.75rem; text-align: center; margin-top: 16px;">Team ClosedLoop · NYLP AI Hackathon 2026</footer>
+  </section>
+
+  <section id="screen-result" class="screen hidden">
+    <div id="intercept-banner" class="hidden"></div>
+    <div id="verdict-circle" class="verdict-circle"></div>
+    <div id="result-reason"></div>
+    <div id="result-action"></div>
+    <button class="btn-danger hidden" id="btn-report">🚩 Report this scam</button>
+    <button class="link-btn hidden" id="btn-report-small">Think it's a scam? Report it</button>
+    <div id="report-thanks" class="hidden">Thank you, you helped protect others.</div>
+    <button class="btn-primary hidden" id="btn-share">📤 Warn my family</button>
+    <button class="btn-secondary hidden" id="btn-continue">➡️ Continue to website anyway</button>
+    <button class="btn-secondary" id="btn-back">⬅ Check another</button>
+  </section>
+
+  <section id="screen-loading" class="screen hidden" style="align-items: center; justify-content: center; text-align: center;">
+    <div class="big-icon">🛡️</div>
+    <div id="loading-text" style="font-size: 1.2rem; font-weight: 600;">Checking...</div>
+  </section>
+</div>
+
+<div id="screen-intercept" class="hidden">
+  <div class="big-icon">⛔</div>
+  <div class="intercept-title" id="intercept-title">STOP — This link looks like a scam</div>
+  <div class="intercept-sub" id="intercept-sub">Loop caught this before it opened.</div>
+  <div id="countdown">Continue in 3s...</div>
+  <div id="intercept-actions" class="hidden">
+    <button class="btn-secondary" id="btn-intercept-why">See why</button>
+    <button class="btn-secondary" id="btn-intercept-back">Go back</button>
+  </div>
+</div>
+
+<div id="screen-verify" class="hidden">
+  <div class="big-icon">📞</div>
+  <div class="intercept-title" id="verify-title">HANG UP. Call them back on their saved number.</div>
+  <div class="intercept-sub" id="verify-sub">Voices can be cloned. A real relative won't mind you checking.</div>
+  <input type="text" id="verify-codeword" placeholder="Family code word (if they answer)" />
+  <div id="verify-actions">
+    <button class="btn-secondary" id="btn-verify-ok">✅ Verified — it's really them</button>
+    <button class="btn-danger" id="btn-verify-hangup">☎️ Still unsure — hang up</button>
+  </div>
+</div>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+let lang = 'en';
+const $ = (id) => document.getElementById(id);
+
+const T = {
+  en: {
+    tagline: 'Your digital watchman. Paste anything suspicious below.',
+    check: 'Check it', screenshot: 'I have a screenshot instead', image: '🖼️ Check a photo/image',
+    imageChecking: 'Analyzing image...', video: '🎥 Check a video',
+    demoLink: '📱 Tapped a scam link', demoCall: '📞 Emergency call',
+    back: '⬅ Check another',
+    interceptTitle: 'STOP — This link looks like a scam', interceptSub: 'Loop caught this before it opened.',
+    verifyTitle: 'HANG UP. Call them back on their saved number.', verifySub: "Voices can be cloned. A real relative won't mind you checking.",
+    langBtn: 'اردو',
+    interceptBanner: '⛔ Loop caught this before it opened',
+    loading: 'Checking...', continueBtn: '➡️ Continue to website anyway',
+    report: '🚩 Report this scam', reportSmall: "Think it's a scam? Report it",
+    reportThanks: 'Thank you, you helped protect others.', share: '📤 Warn my family',
+    reportLimit: "You've sent a lot of reports, thank you. Please try again later.",
+    reportFailed: "Couldn't send your report, please try again later.",
+    copied: 'Warning copied — paste it in your family group.',
+    shareMsg: (items) => `⚠️ Loop scam warning: don't open / call ${items}. Never share your OTP or PIN.`,
+  },
+  ur: {
+    tagline: 'آپ کا ڈیجیٹل چوکیدار۔ نیچے کوئی بھی مشکوک چیز پیسٹ کریں۔',
+    check: 'چیک کریں', screenshot: 'میرے پاس اسکرین شاٹ ہے', image: '🖼️ تصویر چیک کریں',
+    imageChecking: 'تصویر کا جائزہ لیا جا رہا ہے...', video: '🎥 ویڈیو چیک کریں',
+    demoLink: '📱 مشکوک لنک دبایا', demoCall: '📞 ایمرجنسی کال',
+    back: '⬅ کچھ اور چیک کریں',
+    interceptTitle: 'رکیں — یہ لنک فراڈ لگتا ہے', interceptSub: 'لوپ نے اسے کھلنے سے پہلے روک لیا۔',
+    verifyTitle: 'فون بند کریں۔ ان کے محفوظ نمبر پر خود کال کریں۔', verifySub: 'آواز نقل کی جا سکتی ہے۔ اصل رشتہ دار کو برا نہیں لگے گا۔',
+    langBtn: 'English',
+    interceptBanner: '⛔ لوپ نے اسے کھلنے سے پہلے روک لیا',
+    loading: 'جانچ کی جا رہی ہے...', continueBtn: '➡️ پھر بھی ویب سائٹ پر جائیں',
+    report: '🚩 اس فراڈ کی رپورٹ کریں', reportSmall: 'فراڈ لگتا ہے؟ رپورٹ کریں',
+    reportThanks: 'شکریہ، آپ نے دوسروں کو بچانے میں مدد کی۔', share: '📤 گھر والوں کو خبردار کریں',
+    reportLimit: 'آپ نے بہت سی رپورٹس بھیجی ہیں، شکریہ۔ براہ کرم بعد میں کوشش کریں۔',
+    reportFailed: 'آپ کی رپورٹ نہیں بھیجی جا سکی، براہ کرم بعد میں کوشش کریں۔',
+    copied: 'وارننگ کاپی ہو گئی — اپنے فیملی گروپ میں پیسٹ کریں۔',
+    shareMsg: (items) => `⚠️ لوپ وارننگ: ${items} نہ کھولیں / کال نہ کریں۔ اپنا OTP یا PIN کبھی شیئر نہ کریں۔`,
+  },
+};
+
+function applyLang() {
+  const t = T[lang];
+  $('home-tagline').textContent = t.tagline;
+  $('btn-check').textContent = t.check;
+  $('btn-screenshot').textContent = t.screenshot;
+  $('btn-image').textContent = t.image;
+  $('btn-video').textContent = t.video;
+  $('btn-demo-link').textContent = t.demoLink;
+  $('btn-demo-call').textContent = t.demoCall;
+  $('btn-back').textContent = t.back;
+  $('intercept-title').textContent = t.interceptTitle;
+  $('intercept-sub').textContent = t.interceptSub;
+  $('verify-title').textContent = t.verifyTitle;
+  $('verify-sub').textContent = t.verifySub;
+  $('lang-toggle').textContent = t.langBtn;
+  $('intercept-banner').textContent = t.interceptBanner;
+  $('loading-text').textContent = t.loading;
+  $('btn-continue').textContent = t.continueBtn;
+  $('btn-report').textContent = t.report;
+  $('btn-report-small').textContent = t.reportSmall;
+  $('report-thanks').textContent = t.reportThanks;
+  $('btn-share').textContent = t.share;
+  document.body.classList.toggle('lang-ur', lang === 'ur');
+}
+
+$('lang-toggle').addEventListener('click', () => {
+  lang = lang === 'en' ? 'ur' : 'en';
+  applyLang();
+  if (lastVerdict) renderVerdict(lastVerdict);
+});
+
+function speak(text) {
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = lang === 'ur' ? 'ur-PK' : 'en-US';
+    speechSynthesis.speak(u);
+  } catch (e) { /* speech unsupported, silent fallback to on-screen text */ }
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach((el) => el.classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
+
+let lastVerdict = null;
+let viaIntercept = false;
+let lastLink = null;
+let lastInput = null;     // text of the last message check, sent with a report
+let reportedItems = null; // defanged items once the current verdict has been reported
+
+// Anonymous ID so the server can count distinct reporters. Storage can be blocked, so fall back
+// to an ID for this session only.
+let deviceId = null;
+function getDeviceId() {
+  if (deviceId) return deviceId;
+  try { deviceId = localStorage.getItem('loop_device_id'); } catch (e) { /* storage blocked */ }
+  if (!deviceId) {
+    deviceId = window.crypto && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    try { localStorage.setItem('loop_device_id', deviceId); } catch (e) { /* session-only ID */ }
+  }
+  return deviceId;
+}
+
+let toastTimer = null;
+function showToast(msg) {
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.remove('hidden');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.add('hidden'), 3500);
+}
+
+function updateReportControls() {
+  const v = lastVerdict;
+  const canReport = !!(v && v.reportable) && !reportedItems;
+  $('btn-report').classList.toggle('hidden', !canReport || v.verdict === 'green');
+  $('btn-report-small').classList.toggle('hidden', !canReport || v.verdict !== 'green');
+  $('report-thanks').classList.toggle('hidden', !reportedItems);
+  $('btn-share').classList.toggle('hidden', !reportedItems);
+}
+
+// A verdict from a new check (not a language re-render) resets the report state.
+function showNewVerdict(v) {
+  reportedItems = null;
+  renderVerdict(v);
+}
+
+function renderVerdict(v) {
+  lastVerdict = v;
+  const circle = $('verdict-circle');
+  circle.className = 'verdict-circle ' + v.verdict;
+  circle.textContent = v.verdict === 'red' ? '⚠️' : v.verdict === 'yellow' ? '❓' : '✅';
+  const reason = lang === 'ur' ? v.reason_ur : v.reason_en;
+  const action = lang === 'ur' ? v.action_ur : v.action_en;
+  $('result-reason').textContent = reason;
+  $('result-action').textContent = action;
+  $('intercept-banner').classList.toggle('hidden', !viaIntercept);
+  $('btn-continue').classList.toggle('hidden', !viaIntercept);
+  updateReportControls();
+  showScreen('screen-result');
+  speak(reason + '. ' + action);
+}
+
+async function check(kind) {
+  const input = kind === 'screenshot' ? 'screenshot' : $('input-text').value.trim();
+  if (kind !== 'screenshot' && !input) return;
+  if (kind === 'message') lastLink = input;
+  lastInput = kind === 'screenshot' ? null : input;
+  showScreen('screen-loading');
+  try {
+    const res = await fetch('/api/check', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input, kind: kind || 'message' }),
+    });
+    const v = await res.json();
+    showNewVerdict(v);
+  } finally {
+    applyLang();
+  }
+}
+
+$('btn-check').addEventListener('click', () => check('message'));
+$('btn-screenshot').addEventListener('click', () => check('screenshot'));
+
+$('btn-image').addEventListener('click', () => $('input-image').click());
+$('input-image').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  showScreen('screen-loading');
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const [, mimeType, base64] = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+    const res = await fetch('/api/check-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ imageBase64: base64, mimeType }),
+    });
+    const v = await res.json();
+    showNewVerdict(v);
+  } finally {
+    e.target.value = '';
+    applyLang();
+  }
+});
+
+$('btn-video').addEventListener('click', () => $('input-video').click());
+$('input-video').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  showScreen('screen-loading');
+  try {
+    const dataUrl = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    const [, mimeType, base64] = dataUrl.match(/^data:([^;]+);base64,(.*)$/);
+    const res = await fetch('/api/check-video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ videoBase64: base64, mimeType }),
+    });
+    const v = await res.json();
+    showNewVerdict(v);
+  } finally {
+    e.target.value = '';
+    applyLang();
+  }
+});
+
+async function sendReport() {
+  if (!lastInput) return;
+  try {
+    const res = await fetch('/api/report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: lastInput, deviceId: getDeviceId() }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (res.ok && Array.isArray(data.items)) {
+      reportedItems = data.items;
+      updateReportControls();
+      return;
+    }
+    showToast(res.status === 429 ? T[lang].reportLimit : T[lang].reportFailed);
+  } catch (e) {
+    showToast(T[lang].reportFailed);
+  }
+}
+
+async function shareWarning() {
+  if (!reportedItems) return;
+  const items = reportedItems.join(', ');
+  const text = `${T.en.shareMsg(items)}\n\n${T.ur.shareMsg(items)}`;
+  if (window.Android && window.Android.share) {
+    window.Android.share(text);
+    return;
+  }
+  if (navigator.share) {
+    try { await navigator.share({ text }); } catch (e) { /* user cancelled */ }
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast(T[lang].copied);
+  } catch (e) {
+    showToast(T[lang].reportFailed);
+  }
+}
+
+$('btn-report').addEventListener('click', sendReport);
+$('btn-report-small').addEventListener('click', sendReport);
+$('btn-share').addEventListener('click', shareWarning);
+
+$('btn-back').addEventListener('click', () => { $('input-text').value = ''; showScreen('screen-home'); });
+$('btn-continue').addEventListener('click', () => {
+  if (!lastLink) return;
+  if (window.Android && window.Android.openInBrowser) {
+    window.Android.openInBrowser(lastLink);
+  } else {
+    window.location.href = lastLink;
+  }
+});
+
+// Mock: proactive link intercept
+$('btn-demo-link').addEventListener('click', () => {
+  $('screen-intercept').classList.remove('hidden');
+  $('intercept-actions').classList.add('hidden');
+  $('countdown').classList.remove('hidden');
+  let n = 3;
+  $('countdown').textContent = `Continue in ${n}s...`;
+  const timer = setInterval(() => {
+    n--;
+    if (n <= 0) {
+      clearInterval(timer);
+      $('countdown').classList.add('hidden');
+      $('intercept-actions').classList.remove('hidden');
+    } else {
+      $('countdown').textContent = `Continue in ${n}s...`;
+    }
+  }, 1000);
+});
+
+$('btn-intercept-back').addEventListener('click', () => $('screen-intercept').classList.add('hidden'));
+$('btn-intercept-why').addEventListener('click', async () => {
+  $('screen-intercept').classList.add('hidden');
+  $('input-text').value = 'Your account will be suspended! Verify now: http://hbl-secure-verify.com/login';
+  await check('message');
+});
+
+// Mock: VERIFY flow
+$('btn-demo-call').addEventListener('click', () => $('screen-verify').classList.remove('hidden'));
+$('btn-verify-ok').addEventListener('click', () => $('screen-verify').classList.add('hidden'));
+$('btn-verify-hangup').addEventListener('click', () => $('screen-verify').classList.add('hidden'));
+
+applyLang();
+
+// Real link interception: launched via VIEW intent with ?check=<url>, or bubble quick-menu with ?verify=1
+const bootParams = new URLSearchParams(location.search);
+const interceptedLink = bootParams.get('check');
+const autoVerify = bootParams.get('verify');
+if (interceptedLink) {
+  viaIntercept = true;
+  $('input-text').value = interceptedLink;
+  check('message');
+} else if (autoVerify) {
+  $('screen-verify').classList.remove('hidden');
+}
+</script>
+</body>
+</html>

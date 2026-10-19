@@ -1,0 +1,18 @@
+# secrets
+.env
+
+# node
+node_modules/
+
+# android / gradle
+android/.gradle/
+android/.idea/
+android/.kotlin/
+android/local.properties
+android/app/build/
+android/app/.cxx/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

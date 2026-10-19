@@ -1,0 +1,12 @@
+{
+  "name": "loop",
+  "version": "1.0.0",
+  "description": "Loop — a proactive Android shield that checks the link before it opens and the call before you trust it. Built by Team ClosedLoop for the NYLP AI Hackathon 2026.",
+  "author": "Team ClosedLoop",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test_check.js && node test_community.js"
+  },
+  "license": "MIT"
+}
