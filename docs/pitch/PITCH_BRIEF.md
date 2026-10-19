@@ -1,7 +1,7 @@
 # Loop — Pitch Brief (as actually built)
 ### Team ClosedLoop · NYLP AI Hackathon 2026 · Theme: Building AI-Powered Products
 
-This reflects what is **actually running** right now, not the original concept doc (`loop-brief.md`). Use this for slides.
+This reflects what is **actually running** right now, not the concept doc (`loop-brief.md`). Use this for slides.
 
 ---
 
@@ -23,8 +23,8 @@ Under the hood, checks return one of three colors (red/yellow/green), a one-sent
 | Real link interception | **Real** | Native Android `VIEW` intent-filter + default-browser role; reuses the same check engine |
 | Floating bubble | **Real** | System overlay (`TYPE_APPLICATION_OVERLAY`), draggable, no invasive permissions |
 | Screenshot rule | **Real** | Fixed, unfalsifiable response: "Screenshots prove nothing — check your own app" — no image analysis attempted on screenshots specifically, by design |
-| VERIFY (deepfake voice/video defense) | **Mocked / roleplay** | Coaching screen: hang up, call back on the saved number, ask for a family code word |
-| FLAG (warn others) | **Mocked** | One-tap toast simulating "warned 8 contacts in your Family group" |
+| VERIFY (deepfake voice/video defense) | **Real (guided flow, by design)** | Coaching screen: hang up, call back on the saved number, ask for a family code word. Deliberately not a detector |
+| FLAG (warn others) | **Real** | One-tap Report this scam (3 devices / 2 networks / 90 days → red for everyone, stored in Turso) and Warn my family share message in Urdu and English |
 
 ## 3. Why Android
 

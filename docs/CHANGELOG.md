@@ -2,7 +2,7 @@
 
 ## 2026-10-16 (evening) — Community flags
 
-Users can now report a scam link or phone number with one tap. Once enough different people report the same thing, **everyone** who meets it afterwards sees **red: "N Loop users reported this as a scam."** This makes the FLAG step real: it used to be a placeholder pop-up.
+Users can now report a scam link or phone number with one tap. Once enough different people report the same thing, **everyone** who meets it afterwards sees **red: "N Loop users reported this as a scam."**
 
 Design: `docs/superpowers/specs/2026-10-16-community-flags-design.md` · Plan: `docs/superpowers/plans/2026-10-16-community-flags.md`
 

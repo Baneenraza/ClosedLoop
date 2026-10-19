@@ -39,7 +39,7 @@ The barrier isn't the app being hard to use — it's the user never opening it i
 
 We'll tell you what doesn't work before you ask.
 
-Everything here — text check, image check, link interception, the bubble — real, running, right now. VERIFY and FLAG are roleplay for today's demo, and we're saying so.
+Everything here — text check, image check, link interception, the bubble — real, running, right now. FLAG is live: one tap reports a scam, and enough independent reports turn it red for everyone. VERIFY is a checklist, not a detector, on purpose.
 
 Here's the part that matters: nobody can reliably detect a deepfake in real time. We didn't just say that — we tested it. Two different deepfake models, two real deepfakes — each model caught one, missed the other.
 

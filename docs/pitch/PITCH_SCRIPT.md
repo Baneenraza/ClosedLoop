@@ -36,7 +36,7 @@ For text and links, we run local regex checks first — raw IPs, missing HTTPS, 
 
 **[Lead with confidence here, not an apology:]** We want to tell you what doesn't work before you ask.
 
-Everything on the left — text check, image check, link interception, the floating bubble, the screenshot rule — is real and running, not a mockup. VERIFY and FLAG are roleplay for this demo, and we're saying that plainly rather than hoping nobody notices.
+Everything on the left — text check, image check, link interception, the floating bubble, the screenshot rule — is real and running, not a mockup. FLAG is live too: one-tap reports, and once 3 devices on 2 networks report the same link or number, everyone sees it red. VERIFY is a guided checklist, not a detector, and that's deliberate. Here's why.
 
 Here's the one I actually want you to remember: nobody can reliably detect a deepfake video or voice in real time — that's a published, unsolved limitation, not an excuse. We didn't just cite that — we tested it. We ran two independent deepfake-detection models, an EfficientNet-B0 classifier and a modern Vision Transformer trained on 2.7 million images across almost 5,000 different generators, against two confirmed deepfakes. Each model caught a *different one* of the two, and missed the other.
 
